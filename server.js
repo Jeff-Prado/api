@@ -1,62 +1,55 @@
 const express = require("express");
-const fs = require("fs");
 const cors = require("cors");
+const fs = require("fs");
 const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Habilitar CORS e JSON parsing
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" })); // Aumenta o limite de JSON
 app.use(express.urlencoded({ extended: true }));
 
-const transcriptsDir = path.join(__dirname, "transcripts");
-
-// Criar a pasta transcripts se não existir
-if (!fs.existsSync(transcriptsDir)) {
-    fs.mkdirSync(transcriptsDir);
+// Pasta para armazenar os transcripts
+const transcriptsFolder = path.join(__dirname, "transcripts");
+if (!fs.existsSync(transcriptsFolder)) {
+  fs.mkdirSync(transcriptsFolder);
 }
 
-// 📌 Servir o site da pasta "public"
-app.use(express.static(path.join(__dirname, "public")));
-
-// 📌 Rota para receber um transcript e salvar no servidor
-app.post("/upload-transcript", (req, res) => {
+// Rota para receber e salvar o transcript
+app.post("/upload-transcript", async (req, res) => {
+  try {
     const { content } = req.body;
 
     if (!content) {
-        return res.status(400).json({ error: "Conteúdo do transcript não encontrado." });
+      return res.status(400).json({ error: "Nenhum conteúdo recebido!" });
     }
 
+    // Nome do arquivo baseado na data/hora
     const fileName = `transcript-${Date.now()}.html`;
-    const filePath = path.join(transcriptsDir, fileName);
+    const filePath = path.join(transcriptsFolder, fileName);
 
-    fs.writeFile(filePath, content, (err) => {
-        if (err) {
-            console.error("Erro ao salvar transcript:", err);
-            return res.status(500).json({ error: "Erro ao salvar transcript." });
-        }
+    // Salvar o arquivo corretamente
+    fs.writeFile(filePath, content, "utf8", (err) => {
+      if (err) {
+        console.error("Erro ao salvar transcript:", err);
+        return res.status(500).json({ error: "Erro ao salvar transcript." });
+      }
 
-        res.json({ url: `/transcripts/${fileName}` });
+      // Retornar o link do arquivo salvo
+      res.json({ url: `https://api-fo68.onrender.com/transcripts/${fileName}` });
     });
+  } catch (error) {
+    console.error("Erro na API:", error);
+    res.status(500).json({ error: "Erro interno do servidor." });
+  }
 });
 
-// 📌 Rota para listar todos os transcripts disponíveis
-app.get("/transcripts", (req, res) => {
-    fs.readdir(transcriptsDir, (err, files) => {
-        if (err) {
-            console.error("Erro ao listar transcripts:", err);
-            return res.status(500).json({ error: "Erro ao listar transcripts." });
-        }
+// Servir os transcripts como arquivos públicos
+app.use("/transcripts", express.static(transcriptsFolder));
 
-        res.json(files);
-    });
-});
-
-// 📌 Servir os arquivos de transcript diretamente
-app.use("/transcripts", express.static(transcriptsDir));
-
-// 🔥 Iniciar o servidor
+// Iniciar o servidor
 app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`✅ API rodando na porta ${PORT}`);
 });
