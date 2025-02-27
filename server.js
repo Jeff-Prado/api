@@ -40,8 +40,8 @@ app.post("/upload-transcript", async (req, res) => {
         return res.status(500).json({ error: "Erro ao salvar transcript." });
       }
 
-      // Retornar o link do arquivo salvo
-      res.json({ url: `https://api-e7fn.onrender.com/transcripts/${fileName}` });
+      console.log("Arquivo salvo em:", filePath);
+      res.json({ url: `/transcripts/${fileName}` });
     });
   } catch (error) {
     console.error("Erro na API:", error);
@@ -50,10 +50,26 @@ app.post("/upload-transcript", async (req, res) => {
 });
 
 // Servir os transcripts como arquivos públicos
-app.use("/transcripts", express.static(transcriptsFolder));
+app.use("/transcripts", express.static(transcriptsFolder, {
+  extensions: ["html"],
+  setHeaders: (res, path, stat) => {
+    res.set("Content-Type", "text/html");
+  },
+}));
+
+// Rota para listar os transcripts disponíveis
+app.get("/transcripts/list", (req, res) => {
+  fs.readdir(transcriptsFolder, (err, files) => {
+    if (err) {
+      console.error("Erro ao listar transcripts:", err);
+      return res.status(500).json({ error: "Erro ao listar transcripts." });
+    }
+    res.json({ transcripts: files });
+  });
+});
 
 app.get("/", (req, res) => {
-    res.send("🚀 API da Rebel City rodando com sucesso!");
+  res.send("🚀 API da Rebel City rodando com sucesso!");
 });
 
 // Iniciar o servidor
