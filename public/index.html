@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rebel City - Transcripts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1e1e2e;
+            color: white;
+            padding: 20px;
+        }
+        h1 {
+            color: #ffcc00;
+        }
+        .transcript-list {
+            margin-top: 20px;
+        }
+        .transcript-item {
+            padding: 10px;
+            background: #29293d;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        a {
+            color: #ffcc00;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>📜 Transcripts Disponíveis</h1>
+    <div class="transcript-list" id="transcriptList"></div>
+
+    <script>
+        async function fetchTranscripts() {
+            try {
+                const response = await fetch('/transcripts');
+                const files = await response.json();
+                
+                const listDiv = document.getElementById('transcriptList');
+                listDiv.innerHTML = '';
+
+                files.forEach(file => {
+                    const div = document.createElement('div');
+                    div.className = 'transcript-item';
+                    div.innerHTML = `<a href="/transcripts/${file}" target="_blank">${file}</a>`;
+                    listDiv.appendChild(div);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar transcripts:", error);
+            }
+        }
+
+        fetchTranscripts();
+    </script>
+</body>
+</html>
