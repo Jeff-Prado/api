@@ -41,7 +41,7 @@ app.post("/upload-transcript", async (req, res) => {
       }
 
       // Retornar o link do arquivo salvo
-      res.json({ url: `https://api-fo68.onrender.com/transcripts/${fileName}` });
+      res.json({ url: `https://api-e7fn.onrender.com/transcripts/${fileName}` });
     });
   } catch (error) {
     console.error("Erro na API:", error);
