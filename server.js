@@ -26,12 +26,15 @@ app.post("/upload-transcript", async (req, res) => {
       return res.status(400).json({ error: "Nenhum conteúdo recebido!" });
     }
 
+    // Certifique-se de que o conteúdo é uma string
+    const transcriptContent = typeof content === "string" ? content : JSON.stringify(content);
+
     // Nome do arquivo baseado na data/hora
     const fileName = `transcript-${Date.now()}.html`;
     const filePath = path.join(transcriptsFolder, fileName);
 
     // Salvar o arquivo corretamente
-    fs.writeFile(filePath, content, "utf8", (err) => {
+    fs.writeFile(filePath, transcriptContent, "utf8", (err) => {
       if (err) {
         console.error("Erro ao salvar transcript:", err);
         return res.status(500).json({ error: "Erro ao salvar transcript." });
