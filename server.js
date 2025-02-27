@@ -49,6 +49,10 @@ app.post("/upload-transcript", async (req, res) => {
 // Servir os transcripts como arquivos públicos
 app.use("/transcripts", express.static(transcriptsFolder));
 
+app.get("/", (req, res) => {
+    res.send("🚀 API da Rebel City rodando com sucesso!");
+});
+
 // Iniciar o servidor
 app.listen(PORT, () => {
   console.log(`✅ API rodando na porta ${PORT}`);
