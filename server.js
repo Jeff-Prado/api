@@ -49,12 +49,13 @@ app.post("/upload-transcript", async (req, res) => {
   }
 });
 
-// Servir os transcripts como arquivos públicos
+// Servir os transcripts corretamente como HTML
 app.use("/transcripts", express.static(transcriptsFolder, {
-  extensions: ["html"],
-  setHeaders: (res, path, stat) => {
-    res.set("Content-Type", "text/html");
-  },
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith(".html")) {
+      res.setHeader("Content-Type", "text/html");
+    }
+  }
 }));
 
 // Rota para listar os transcripts disponíveis
